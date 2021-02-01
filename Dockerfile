@@ -5,19 +5,17 @@
 # full kimai source
 FROM alpine:3.13.0 AS git
 ARG VERSION=1.12
-ARG CHECKSUM=
+ARG CHECKSUM=511e8c9bab096cc900e122dbc8efbb7522ade647e2c1ebe3f0a2638c121b31dc
 # I need to do this check somewhere, we discard all but the checkout so doing here doesn't hurt
-ADD ./bin/test-kimai-version.sh /test-kimai-version.sh
+COPY ./bin/test-kimai-version.sh /test-kimai-version.sh
 WORKDIR /tmp
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 RUN \
   echo "**** install packages ****" && \
   /test-kimai-version.sh && \
   apk add --no-cache \
-    git \
-    wget \
-    unzip && \
-  #git clone --depth 1 --branch ${VERSION} https://github.com/kevinpapst/kimai2.git /opt/kimai && \
+    wget=1.21.1-r1 \
+    unzip=6.0-r8 && \
   echo "**** download kimai ****" && \
   wget "https://github.com/kevinpapst/kimai2/releases/download/${VERSION}/kimai-release-${VERSION}.zip" && \
   echo "${CHECKSUM}  kimai-release-${VERSION}.zip" | sha256sum -c && \
@@ -36,30 +34,30 @@ FROM php:7.4.12-fpm-alpine3.12 AS fpm-alpine-php-ext-base
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
-    autoconf \
-    dpkg \
-    dpkg-dev \
-    file \
-    g++ \
-    gcc \
-    libatomic \
-    libc-dev \
-    libgomp \
-    libmagic \
-    m4 \
-    make \
-    mpc1 \
-    mpfr4 \
-    musl-dev \
-    perl \
-    re2c \
-    freetype-dev \
-    libpng-dev \
-    icu-dev \
-    openldap-dev \
-    libldap \
-    libzip-dev \
-    libxslt-dev && \
+    autoconf=2.69-r2 \
+    dpkg=1.20.0-r0 \
+    dpkg-dev=1.20.0-r0 \
+    file=5.38-r0 \
+    g++=9.3.0-r2 \
+    gcc=9.3.0-r2 \
+    libatomic=9.3.0-r2 \
+    libc-dev=0.7.2-r3 \
+    libgomp=9.3.0-r2 \
+    libmagic=5.38-r0 \
+    m4=1.4.18-r1 \
+    make=4.3-r0 \
+    mpc1=1.1.0-r1 \
+    mpfr4=4.0.2-r4 \
+    musl-dev=1.1.24-r10 \
+    perl=5.30.3-r0 \
+    re2c=1.3-r1 \
+    freetype-dev=2.10.4-r0 \
+    libpng-dev=1.6.37-r1 \
+    icu-dev=67.1-r0 \
+    openldap-dev=2.4.50-r1 \
+    libldap=2.4.50-r1 \
+    libzip-dev=1.6.1-r1 \
+    libxslt-dev=1.1.34-r0 && \
   echo "**** cleanup ****" && \
   rm -rf /tmp/*
 
@@ -68,33 +66,36 @@ FROM fpm-alpine-php-ext-base AS php-ext-gd
 RUN \
   echo "**** install php extensions ****" && \
   docker-php-ext-configure gd --with-freetype && \
-  docker-php-ext-install -j$(nproc) gd
+  docker-php-ext-install -j"$(nproc)" gd
 
 # php extension intl : 15.26s
 FROM fpm-alpine-php-ext-base AS php-ext-intl
-RUN docker-php-ext-install -j$(nproc) intl
+RUN docker-php-ext-install -j"$(nproc)" intl
 
 # php extension ldap : 8.45s
 FROM fpm-alpine-php-ext-base AS php-ext-ldap
 RUN \
   docker-php-ext-configure ldap && \
-  docker-php-ext-install -j$(nproc) ldap
+  docker-php-ext-install -j"$(nproc)" ldap
 
 # php extension pdo_mysql : 6.14s
 FROM fpm-alpine-php-ext-base AS php-ext-pdo_mysql
-RUN docker-php-ext-install -j$(nproc) pdo_mysql
+RUN docker-php-ext-install -j"$(nproc)" pdo_mysql
 
 # php extension zip : 8.18s
 FROM fpm-alpine-php-ext-base AS php-ext-zip
-RUN docker-php-ext-install -j$(nproc) zip
+RUN docker-php-ext-install -j"$(nproc)" zip
 
 # php extension xsl : ?.?? s
 FROM fpm-alpine-php-ext-base AS php-ext-xsl
-RUN docker-php-ext-install -j$(nproc) xsl
+RUN docker-php-ext-install -j"$(nproc)" xsl
 
 FROM php:7.4.12-fpm-alpine3.12 AS fpm-alpine-base
 ARG TZ=America/Los_Angeles
+ARG BUILD_DATE
+ARG VERSION
 ENV TZ=${TZ}
+LABEL build_version="Version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="nicholaswilde <ncwilde43@gmail.com>"
 ENV VERSION=${VERSION}
 ENV DATABASE_URL=sqlite:///%kernel.project_dir%/var/data/kimai.sqlite
@@ -117,16 +118,16 @@ ENV APP_ENV=prod
 RUN \
   echo "**** install packages ****" && \
   apk add --no-cache \
-    bash \
-    freetype \
-    haveged \
-    icu \
-    libldap \
-    libpng \
-    libzip \
-    libxslt-dev \
-    fcgi \
-    tzdata && \
+    bash=5.0.17-r0 \
+    freetype=2.10.4-r0 \
+    haveged=1.9.8-r1 \
+    icu=67.1-r0 \
+    libldap=2.4.50-r1 \
+    libpng=1.6.37-r1 \
+    libzip=1.6.1-r1 \
+    libxslt-dev=1.1.34-r0 \
+    fcgi=2.4.2-r0 \
+    tzdata=2020f-r0 && \
   echo "**** cleanup ****" && \
   rm -rf /tmp/* && \
   touch /use_fpm && \

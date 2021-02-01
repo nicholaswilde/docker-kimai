@@ -1,7 +1,6 @@
 ---
 version: '3.5'
 services:
-
   sqldb:
     image: mysql:5.7
     environment:
@@ -31,7 +30,7 @@ services:
     depends_on:
       - kimai
     healthcheck:
-      test:  wget --spider http://nginx/health || exit 1
+      test: wget --spider http://nginx/health || exit 1
       interval: 20s
       start_period: 10s
       timeout: 10s
@@ -59,14 +58,6 @@ services:
       smtp_user: kimai:kimai
     restart: unless-stopped
 
-  #autoupdate:
-  #  image: kimai/kimai2
-  #  volumes:
-  #      - public:/public
-  #      - ./bin/copy-public.sh:/copy-public.sh
-  #  entrypoint: /copy-public.sh
-  #  user: 0:0
-
 volumes:
-    var:
-    public:
+  var:
+  public:
