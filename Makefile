@@ -18,7 +18,7 @@ build-latest: Dockerfile
 
 ## checksum	: Get the checksum of a file
 checksum:
-	wget -qO- "https://github.com/$(IMAGE_NAME)/$(IMAGE_NAME)/releases/download/v${VERSION}/Leantime-v${VERSION}.tar.gz" | sha256sum
+	wget -qO- "https://github.com/kevinpapst/$(IMAGE_NAME)2/releases/download/${VERSION}/$(IMAGE_NAME)-release-${VERSION}.zip" | sha256sum
 
 ## date		: Check the image date
 date:
@@ -30,11 +30,11 @@ lint:	Dockerfile
 
 ## load   	: Load the release image
 load: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) --build-arg VERSION=$(VERSION) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --load .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --load .
 
 ## load-latest  	: Load the latest image
 load-latest: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):latest -f Dockerfile --load .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):latest --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --load .
 
 ## monitor	: Monitor the image with snyk
 monitor:
