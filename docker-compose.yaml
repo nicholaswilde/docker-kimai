@@ -2,7 +2,7 @@
 version: '3.5'
 services:
   sqldb:
-    image: mysql:5.7
+    image: mysql/mysql-server
     environment:
       - MYSQL_DATABASE=kimai
       - MYSQL_USER=kimaiuser
@@ -40,7 +40,7 @@ services:
     image: nicholaswilde/kimai:latest
     environment:
       - APP_ENV=prod
-      - TRUSTED_HOSTS=localhost,192.168.1.83
+      - TRUSTED_HOSTS=localhost,192.168.1.192
       - ADMINMAIL=admin@kimai.local
       - ADMINPASS=changemeplease
       - DATABASE_URL=mysql://kimaiuser:kimaipassword@sqldb/kimai
@@ -52,9 +52,9 @@ services:
     restart: unless-stopped
 
   postfix:
-    image: catatnight/postfix:latest
+    image: boky/postfix:latest
     environment:
-      maildomain: neontribe.co.uk
+      ALLOWED_SENDER_DOMAINS: neontribe.co.uk
       smtp_user: kimai:kimai
     restart: unless-stopped
 
