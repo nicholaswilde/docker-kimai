@@ -1,51 +1,25 @@
-# Docker Template
-[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/nicholaswilde/template)](https://hub.docker.com/r/nicholaswilde/template)
-[![Docker Pulls](https://img.shields.io/docker/pulls/nicholaswilde/template)](https://hub.docker.com/r/nicholaswilde/template)
-[![GitHub](https://img.shields.io/github/license/nicholaswilde/docker-template)](./LICENSE)
-[![ci](https://github.com/nicholaswilde/docker-template/workflows/ci/badge.svg)](https://github.com/nicholaswilde/docker-template/actions?query=workflow%3Aci)
-[![lint](https://github.com/nicholaswilde/docker-template/workflows/lint/badge.svg?branch=main)](https://github.com/nicholaswilde/docker-template/actions?query=workflow%3Alint)
+# Docker Kimai
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/nicholaswilde/kimai)](https://hub.docker.com/r/nicholaswilde/kimai)
+[![Docker Pulls](https://img.shields.io/docker/pulls/nicholaswilde/kimai)](https://hub.docker.com/r/nicholaswilde/kimai)
+[![GitHub](https://img.shields.io/github/license/nicholaswilde/docker-kimai)](./LICENSE)
+[![ci](https://github.com/nicholaswilde/docker-kimai/workflows/ci/badge.svg)](https://github.com/nicholaswilde/docker-kimai/actions?query=workflow%3Aci)
+[![lint](https://github.com/nicholaswilde/docker-kimai/workflows/lint/badge.svg?branch=main)](https://github.com/nicholaswilde/docker-kimai/actions?query=workflow%3Alint)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
-A template repo for Docker images.
+A multi-architecture image for [Kimai](https://www.kimai.cloud/).
 
 ## Requirements
 - [buildx](https://docs.docker.com/engine/reference/commandline/buildx/)
 
 ## Usage
+
 ### docker-compose
-```
----
-version: "2.1"
-services:
-  template:
-    image: nicholaswilde/template
-    container_name: template
-    environment:
-      - TZ=America/Los_Angeles #optional
-      - PUID=1000   #optional
-      - PGID=1000   #optional
-    ports:
-      - 3000:3000
-    restart: unless-stopped
-    volumes:
-      - app:/app
-      - config:/config
-      - defaults:/defaults
-volumes:
-  app:
-  config:
-  defaults:
-```
-### docker cli
+
+Add the IP address of your server to the `TRUSTED_HOSTS` variable in the [docker-compose.yaml](./docker-compose.yaml) file.
+
+Run the command and go to `https://<ip-address>:8001`
 ```bash
-$ docker run -d \
-  --name=template \
-  -e TZ=America/Los_Angeles `# optional` \
-  -e PUID=1000  `# optional` \
-  -e PGID=1000   `# optional` \
-  -p 3000:3000 \
-  --restart unless-stopped \
-  nicholaswilde/template
+docker-compose up
 ```
 
 ## Build
