@@ -2,7 +2,7 @@
 # Shared tools
 ###########################
 
-FROM php:7.4.14-alpine3.13 as php
+FROM php:7.4.14-fpm-alpine3.13 as php
 
 # full kimai source
 FROM alpine:3.13.1 AS git
