@@ -1,20 +1,22 @@
 include make.env
 
-BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H%M%SZ)
+BUILD_DATE ?= $(shell date -u +%Y-%m-%dT%H%M%S%Z)
+
+BUILD = --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE)
 
 .PHONY: push push-latest run rm help vars shell prune
 
 ## all		: Build all platforms
 all: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(PLATFORMS) --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(PLATFORMS) $(BUILD) -f Dockerfile .
 
 ## build		: build the current platform (default)
 build: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(BUILD) -f Dockerfile .
 
 ## build-latest	: Build the latest current platform
 build-latest: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):latest --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):latest $(BUILD) -f Dockerfile .
 
 ## checksum	: Get the checksum of a file
 checksum:
@@ -30,15 +32,19 @@ lint:	Dockerfile
 
 ## load   	: Load the release image
 load: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --load .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(BUILD) -f Dockerfile --load .
 
 ## load-latest  	: Load the latest image
 load-latest: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):latest --build-arg VERSION=$(VERSION) --build-arg CHECKSUM=$(CHECKSUM) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --load .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):latest $(BUILD) -f Dockerfile --load .
 
 ## monitor	: Monitor the image with snyk
 monitor:
 	snyk container monitor $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS)
+
+## no-cache	: Build with no cache
+no-cache:
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(BUILD) -f Dockerfile .
 
 ## prune		: Prune the docker builder
 prune:
@@ -46,15 +52,15 @@ prune:
 
 ## push   	: Push the release image
 push: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) --build-arg VERSION=$(VERSION) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --push .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(BUILD) -f Dockerfile --push .
 
 ## push-latest  	: PUsh the latest image
 push-latest: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):latest $(PLATFORMS) --build-arg VERSION=$(VERSION) --build-arg BUILD_DATE=$(BUILD_DATE) -f Dockerfile --push .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):latest $(PLATFORMS) $(BUILD) -f Dockerfile --push .
 
 ## push-all 	: Push all release platform images
 push-all: Dockerfile
-	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(PLATFORMS) --build-arg VERSION=$(VERSION) -f Dockerfile --push .
+	docker buildx build -t $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS) $(PLATFORMS) $(BUILD) -f Dockerfile --push .
 
 ## rm   		: Remove the container
 rm: stop
@@ -68,8 +74,9 @@ run:
 rund:
 	docker run -d --rm --name $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) $(PORTS) $(ENV) $(NS)/$(IMAGE_NAME):$(VERSION)-ls$(LS)
 
+## shell 		: Launch a shell in the container
 shell:
-	docker exec -it $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) /bin/sh
+	docker exec -it $(CONTAINER_NAME)-$(CONTAINER_INSTANCE) /bin/ash
 
 ## stop   	: Stop the Docker container
 stop:
@@ -93,5 +100,8 @@ vars:
 	@printf "PORTS 			: %s\n" "$(PORTS)"
 	@printf "ENV 			: %s\n" "$(ENV)"
 	@echo "PLATFORMS 		: $(PLATFORMS)"
+	@echo "CHECKSUM 		: $(CHECKSUM)"
+	@echo "BUILD_DATE 		: $(BUILD_DATE)"
+	@echo "BUILD 			: $(BUILD)"
 
 default: build

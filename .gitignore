@@ -19,3 +19,5 @@ bundles/
 vendor/pkg/
 pyenv
 Vagrantfile
+*.zip
+*.tar.gz
