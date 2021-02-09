@@ -8,8 +8,11 @@
 
 A multi-architecture image for [Kimai](https://www.kimai.cloud/).
 
-## Requirements
-- [buildx](https://docs.docker.com/engine/reference/commandline/buildx/)
+## Dependencies
+
+* mysql
+* nginx
+* postfix
 
 ## Usage
 
@@ -17,26 +20,13 @@ A multi-architecture image for [Kimai](https://www.kimai.cloud/).
 
 Add the IP address of your server to the `TRUSTED_HOSTS` variable in the [docker-compose.yaml](./docker-compose.yaml) file.
 
-Run the command and go to `https://<ip-address>:8001`
-```bash
-docker-compose up
-```
+## Development
 
-## Build
+See [Wiki](https://github.com/nicholaswilde/docker-template/wiki/Development).
 
-Check that you can build the following:
-```bash
-$ docker buildx ls
-NAME/NODE    DRIVER/ENDPOINT             STATUS  PLATFORMS
-mybuilder *  docker-container
-  mybuilder0 unix:///var/run/docker.sock running linux/amd64, linux/arm64, linux/arm/v7
-```
+## Troubleshooting
 
-If you are having trouble building arm images on a x86 machine, see [this blog post](https://www.docker.com/blog/getting-started-with-docker-for-arm-on-linux/).
-
-```
-$ make build
-```
+See [Wiki](https://github.com/nicholaswilde/docker-template/wiki/Troubleshooting).
 
 ## Pre-commit hook
 
