@@ -39,6 +39,7 @@ services:
   kimai:
     image: nicholaswilde/kimai:latest
     environment:
+      - TZ=America/Los_Angeles
       - APP_ENV=prod
       - TRUSTED_HOSTS=localhost,192.168.1.192
       - ADMINMAIL=admin@kimai.local
