@@ -5,9 +5,10 @@
 FROM php:7.4.14-fpm-alpine3.13 as php
 
 # full kimai source
-FROM alpine:3.13.1 AS git
-ARG VERSION=1.13
-ARG CHECKSUM=a1294a95eeb0c75f428108c86a829714379f8b14765fc4277380bddfb386a88b
+FROM alpine:3.13.5 AS git
+ARG VERSION
+ARG CHECKSUM
+ARG FILENAME="${VERSION}.tar.gz"
 # I need to do this check somewhere, we discard all but the checkout so doing here doesn't hurt
 COPY ./bin/test-kimai-version.sh /test-kimai-version.sh
 WORKDIR /tmp
@@ -16,12 +17,12 @@ RUN \
   echo "**** install packages ****" && \
   /test-kimai-version.sh && \
   apk add --no-cache \
-    wget=1.21.1-r1 \
-    unzip=6.0-r8 && \
+    wget=1.21.1-r1 && \
   echo "**** download kimai ****" && \
-  wget "https://github.com/kevinpapst/kimai2/releases/download/${VERSION}/kimai-release-${VERSION}.zip" && \
-  echo "${CHECKSUM}  kimai-release-${VERSION}.zip" | sha256sum -c && \
-  unzip "kimai-release-${VERSION}.zip" -d /opt/kimai
+  wget -q "https://github.com/kevinpapst/kimai2/archive/${FILENAME}" && \
+  echo "${CHECKSUM}  ${FILENAME}" | sha256sum -c && \
+  mkdir -p /opt/kimai && \
+  tar -xvf "${FILENAME}" -C /opt/kimai --strip-components 1
 WORKDIR /opt/kimai
 
 # composer base image
@@ -47,7 +48,7 @@ RUN \
     libatomic=10.2.1_pre1-r3 \
     libc-dev=0.7.2-r3 \
     libgomp=10.2.1_pre1-r3 \
-    libldap=2.4.56-r0 \
+    libldap=2.4.57-r1 \
     libmagic=5.39-r0 \
     libpng-dev=1.6.37-r1 \
     libxslt-dev=1.1.34-r0 \
@@ -57,7 +58,7 @@ RUN \
     mpc1=1.2.0-r0 \
     mpfr4=4.1.0-r0 \
     musl-dev=1.2.2-r0 \
-    openldap-dev=2.4.56-r0 \
+    openldap-dev=2.4.57-r1 \
     perl=5.32.0-r0 \
     re2c=1.3-r1 && \
   echo "**** cleanup ****" && \
@@ -97,6 +98,7 @@ ARG TZ=America/Los_Angeles
 ARG BUILD_DATE
 ARG VERSION
 ENV TZ=${TZ}
+# hadolint ignore=DL3048
 LABEL build_version="Version:- ${VERSION} Build-date:- ${BUILD_DATE}"
 LABEL maintainer="nicholaswilde <ncwilde43@gmail.com>"
 ENV VERSION=${VERSION}
@@ -125,7 +127,7 @@ RUN \
     freetype=2.10.4-r1 \
     haveged=1.9.14-r1 \
     icu=67.1-r2 \
-    libldap=2.4.56-r0 \
+    libldap=2.4.57-r1 \
     libpng=1.6.37-r1 \
     libxslt-dev=1.1.34-r0 \
     libzip=1.7.3-r2 \
